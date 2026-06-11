@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dieta Jan</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --card: #1a1d27;
+      --card2: #222636;
+      --accent: #4ade80;
+      --accent2: #22c55e;
+      --text: #f1f5f9;
+      --muted: #64748b;
+      --border: #2d3148;
+      --pill-bg: #1e3a2a;
+      --gym: #1a2340;
+      --gym-border: #2d3f6e;
+      --gym-accent: #60a5fa;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 0 0 80px 0;
+    }
+
+    /* HEADER */
+    .header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 20px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .header h1 {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+    }
+    .header h1 span { color: var(--accent); }
+    .clock {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .progress-bar-wrap {
+      background: var(--border);
+      border-radius: 99px;
+      height: 4px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent2), var(--accent));
+      border-radius: 99px;
+      transition: width 0.5s ease;
+    }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* CURRENT MEAL HERO */
+    .hero {
+      margin: 16px 16px 0;
+      background: linear-gradient(135deg, #1a2e1e, #1e3a2a);
+      border: 1px solid #2d5a3a;
+      border-radius: 16px;
+      padding: 20px;
+    }
+    .hero-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+    .hero-title {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: -1px;
+      margin-bottom: 4px;
+    }
+    .hero-kcal {
+      font-size: 13px;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .meal-items {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .meal-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+    .meal-item-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-top: 5px;
+      flex-shrink: 0;
+    }
+    .meal-item-text {
+      font-size: 14px;
+      line-height: 1.4;
+      color: var(--text);
+    }
+
+    /* GYM CARD */
+    .gym-card {
+      margin: 12px 16px 0;
+      background: var(--gym);
+      border: 1px solid var(--gym-border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .gym-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: rgba(96,165,250,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .gym-info {}
+    .gym-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--gym-accent);
+      margin-bottom: 2px;
+    }
+    .gym-title {
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .gym-time {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .gym-badge {
+      margin-left: auto;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gym-accent);
+      background: rgba(96,165,250,0.12);
+      padding: 4px 10px;
+      border-radius: 99px;
+      flex-shrink: 0;
+    }
+
+    /* inline gym block inside meals list */
+    .meal-card.gym-block {
+      background: var(--gym);
+      border-color: var(--gym-border);
+    }
+    .meal-card.gym-block .meal-name { color: var(--gym-accent); }
+    .meal-card.gym-block .meal-kcal-badge {
+      color: var(--gym-accent);
+      background: rgba(96,165,250,0.12);
+    }
+
+    /* DAY SELECTOR */
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 20px 16px 10px;
+    }
+    .day-scroll {
+      display: flex;
+      gap: 8px;
+      padding: 0 16px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .day-scroll::-webkit-scrollbar { display: none; }
+    .day-btn {
+      flex-shrink: 0;
+      padding: 8px 16px;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .day-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #0f1117;
+    }
+
+    /* FULL DAY */
+    .meals-list {
+      padding: 0 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .meal-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .meal-card.current {
+      border-color: var(--accent);
+    }
+    .meal-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 16px;
+    }
+    .meal-card-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .meal-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      background: var(--card2);
+    }
+    .meal-card.current .meal-icon {
+      background: var(--pill-bg);
+    }
+    .meal-name {
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .meal-time {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .meal-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .meal-kcal-badge {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent);
+      background: var(--pill-bg);
+      padding: 3px 8px;
+      border-radius: 99px;
+    }
+    .meal-chevron {
+      color: var(--muted);
+      font-size: 14px;
+      transition: transform 0.2s;
+    }
+    .meal-card.open .meal-chevron { transform: rotate(180deg); }
+    .meal-card-body {
+      display: none;
+      padding: 0 16px 14px;
+      flex-direction: column;
+      gap: 6px;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+    }
+    .meal-card.open .meal-card-body { display: flex; }
+    .meal-card-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 13px;
+      color: #cbd5e1;
+      line-height: 1.4;
+    }
+    .meal-card-item::before {
+      content: '•';
+      color: var(--accent);
+      font-weight: 900;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* STATS */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 0 16px;
+      margin-top: 10px;
+    }
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .stat-value {
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: -1px;
+      color: var(--accent);
+    }
+    .stat-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+      font-weight: 500;
+    }
+
+    /* BOTTOM NAV */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0; right: 0;
+      background: var(--card);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0 16px;
+      z-index: 10;
+    }
+    .nav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+      padding: 4px 20px;
+      border-radius: 10px;
+      border: none;
+      background: none;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 600;
+      transition: color 0.15s;
+    }
+    .nav-btn.active { color: var(--accent); }
+    .nav-btn svg { width: 22px; height: 22px; }
+
+    .view { display: none; }
+    .view.active { display: block; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <h1>Dieta <span>Jan</span></h1>
+    <div class="clock" id="clock">--:--</div>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+  </div>
+  <div class="progress-label">
+    <span>Comidas de hoy</span>
+    <span id="progressLabel">0 / 5</span>
+  </div>
+</div>
+
+<!-- VIEW: HOY -->
+<div class="view active" id="view-hoy">
+  <div class="hero" id="heroCard">
+    <div class="hero-label" id="heroLabel">Ahora toca</div>
+    <div class="hero-title" id="heroTitle">—</div>
+    <div class="hero-kcal" id="heroKcal"></div>
+    <div class="meal-items" id="heroItems"></div>
+  </div>
+
+  <div class="section-title">Todo el día</div>
+  <div class="meals-list" id="todayMeals"></div>
+</div>
+
+<!-- VIEW: SEMANA -->
+<div class="view" id="view-semana">
+  <div class="section-title">Día de la semana</div>
+  <div class="day-scroll" id="dayScroll"></div>
+  <div class="meals-list" id="weekMeals" style="margin-top:16px"></div>
+</div>
+
+<!-- VIEW: STATS -->
+<div class="view" id="view-stats">
+  <div class="section-title">Resumen</div>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value">~3.400</div>
+      <div class="stat-label">kcal / día</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">5</div>
+      <div class="stat-label">comidas al día</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">70 → 85</div>
+      <div class="stat-label">kg objetivo</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">~5 m</div>
+      <div class="stat-label">para llegar</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">+15</div>
+      <div class="stat-label">kg a ganar</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">5 días</div>
+      <div class="stat-label">gym / semana</div>
+    </div>
+  </div>
+  <div style="padding: 0 16px; margin-top: 4px;">
+    <button onclick="if(confirm('¿Resetear el día?')) resetDay()" style="
+      width:100%;padding:13px;border-radius:12px;border:1px solid var(--border);
+      background:var(--card);color:var(--muted);font-size:14px;font-weight:600;
+      cursor:pointer;">
+      🔄 Resetear comidas de hoy
+    </button>
+  </div>
+  <div class="section-title" style="margin-top:10px">Lista de la compra semanal</div>
+  <div class="meals-list">
+    <div class="meal-card">
+      <div class="meal-card-header" onclick="toggleCard(this)">
+        <div class="meal-card-left">
+          <div class="meal-icon">🛒</div>
+          <div>
+            <div class="meal-name">Ver lista completa</div>
+            <div class="meal-time">~35-45€ / semana</div>
+          </div>
+        </div>
+        <div class="meal-right">
+          <span class="meal-chevron">▼</span>
+        </div>
+      </div>
+      <div class="meal-card-body">
+        <div class="meal-card-item">Copos de avena 1kg — ~1.5€</div>
+        <div class="meal-card-item">Arroz blanco 1kg — ~1€</div>
+        <div class="meal-card-item">Pasta 1kg — ~1€</div>
+        <div class="meal-card-item">Patatas 2kg — ~2€</div>
+        <div class="meal-card-item">Huevos x24 — ~5€</div>
+        <div class="meal-card-item">Leche entera x6 — ~5€</div>
+        <div class="meal-card-item">Yogur griego x7 — ~4€</div>
+        <div class="meal-card-item">Muslos de pollo 1.5kg — ~4.5€</div>
+        <div class="meal-card-item">Pechuga de pollo 1kg — ~5€</div>
+        <div class="meal-card-item">Atún en lata x8 — ~6€</div>
+        <div class="meal-card-item">Salmón ahumado x2 — ~6€</div>
+        <div class="meal-card-item">Plátanos 2kg — ~2€</div>
+        <div class="meal-card-item">Nectarinas / melocotones — ~3€</div>
+        <div class="meal-card-item">Almendras 500g — ~4.5€</div>
+        <div class="meal-card-item">Aceite de oliva — ~4€</div>
+        <div class="meal-card-item">Mantequilla — ~2€</div>
+        <div class="meal-card-item">Miel — ~3€</div>
+        <div class="meal-card-item">Pan de molde — ~1.5€</div>
+        <div class="meal-card-item">Cacao puro — ~2€</div>
+        <div class="meal-card-item">Queso rallado — ~2€</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <button class="nav-btn active" id="nav-hoy" onclick="setView('hoy')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    Hoy
+  </button>
+  <button class="nav-btn" id="nav-semana" onclick="setView('semana')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Semana
+  </button>
+  <button class="nav-btn" id="nav-stats" onclick="setView('stats')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    Stats
+  </button>
+</div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────────────────
+// doneMeals[mealIdx] = timestamp (ms) when the user tapped "Ya he comido"
+// Resets automatically at the start of each new calendar day
+let doneMeals = {};      // { 0: Date, 1: Date, … }
+let stateDate  = new Date().toDateString(); // day this state belongs to
+
+function getDietDay() {
+  const now = new Date();
+  if (now.getHours() < 5) {
+    const prev = new Date(now);
+    prev.setDate(prev.getDate() - 1);
+    return prev.toDateString();
+  }
+  return now.toDateString();
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem('dietaJan');
+    if (!raw) return;
+    const s = JSON.parse(raw);
+    if (s.date !== getDietDay()) return;
+    doneMeals = s.done || {};
+  } catch(e) {}
+}
+function saveState() {
+  try {
+    localStorage.setItem('dietaJan', JSON.stringify({
+      date: getDietDay(),
+      done: doneMeals
+    }));
+  } catch(e) {}
+}
+function resetDay() {
+  doneMeals = {};
+  saveState();
+  updateClock();
+}
+
+// ── DATA ───────────────────────────────────────────────────────────────────
+const DAYS = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+const SHORT_DAYS = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+
+// Schedule blocks in order (startH inclusive, endH exclusive)
+// hour >= 24 means next day (e.g. 25 = 1:00am)
+const SCHEDULE = [
+  { type: 'meal', idx: 0, name: 'Desayuno',        icon: '🌅', time: '9:00 - 10:00',   startH: 9,  endH: 10, kcal: '~700 kcal' },
+  { type: 'gym',           name: 'Gym 💪',          icon: '🏋️', time: '10:00 - 12:00',  startH: 10, endH: 12, kcal: '~1.5h' },
+  { type: 'meal', idx: 1, name: 'Post-gym',         icon: '🥜', time: '12:30 - 13:30',  startH: 12, endH: 14, kcal: '~400 kcal' },
+  { type: 'meal', idx: 2, name: 'Comida',           icon: '🍽️', time: '15:00 - 16:00',  startH: 14, endH: 18, kcal: '~900 kcal' },
+  { type: 'meal', idx: 3, name: 'Merienda',         icon: '🥤', time: '19:00 - 20:00',  startH: 18, endH: 21, kcal: '~600 kcal' },
+  { type: 'meal', idx: 4, name: 'Cena',             icon: '🌙', time: '23:00 - 00:30',  startH: 21, endH: 27, kcal: '~800 kcal' },
+];
+
+// Only meal slots (for diet data indexing)
+const MEALS = SCHEDULE.filter(s => s.type === 'meal');
+
+const DIET = {
+  1: [ // Lunes
+    ['100g avena con 250ml leche entera calentado en microondas', '1 cucharada de miel encima', '3 huevos revueltos con aceite de oliva', '1 plátano'],
+    ['50g almendras', '1 yogur griego con miel', '1 nectarina'],
+    ['150g arroz blanco con aceite de oliva generoso', '200g muslos de pollo al horno', 'Ensalada con tomate y aceite'],
+    ['Batido: 250ml leche entera + plátano + 50g avena + cacao + mantequilla + miel', '1 tostada con mantequilla y miel'],
+    ['150g pasta con atún y aceite de oliva', '2 huevos fritos', '2 rebanadas de pan con mantequilla y salmón ahumado', '1 melocotón'],
+  ],
+  2: [ // Martes
+    ['100g avena con 250ml leche entera calentado en microondas', '1 cucharada de miel encima', '3 huevos revueltos con aceite de oliva', '1 plátano'],
+    ['50g almendras', '1 yogur griego con miel', '1 melocotón'],
+    ['150g patatas al horno con aceite de oliva', '200g pechuga de pollo a la plancha', 'Tomate con aceite y orégano'],
+    ['Batido: 250ml leche entera + plátano + 50g avena + cacao + mantequilla + miel', '1 tostada con mantequilla y miel'],
+    ['150g arroz con 2 huevos fritos y aceite', '1 lata de atún encima', '2 rebanadas de pan con mantequilla y salmón ahumado', '1 nectarina'],
+  ],
+  3: [ // Miércoles
+    ['100g avena con 250ml leche entera calentado en microondas', '1 cucharada de miel encima', '3 huevos revueltos con aceite de oliva', '1 plátano'],
+    ['50g almendras', '1 yogur griego con miel', '1 nectarina'],
+    ['150g pasta con aceite de oliva y queso rallado', '200g muslos de pollo a la plancha', 'Ensalada con pepino y aceite'],
+    ['Batido: 250ml leche entera + plátano + 50g avena + cacao + mantequilla + miel', '1 tostada con mantequilla y miel'],
+    ['150g patatas fritas en aceite de oliva caseras', '3 huevos a la plancha', '2 rebanadas de pan con mantequilla y salmón ahumado', '1 melocotón'],
+  ],
+  4: [ // Jueves
+    ['100g avena con 250ml leche entera calentado en microondas', '1 cucharada de miel encima', '3 huevos revueltos con aceite de oliva', '1 plátano'],
+    ['50g almendras', '1 yogur griego con miel', '1 melocotón'],
+    ['150g arroz con verduras salteadas y aceite', '200g pechuga de pollo al horno con especias', 'Pan con aceite de oliva'],
+    ['Batido: 250ml leche entera + plátano + 50g avena + cacao + mantequilla + miel', '1 tostada con mantequilla y miel'],
+    ['150g pasta con aceite y 2 latas de atún', '2 huevos fritos', '2 rebanadas de pan con mantequilla y salmón ahumado', '1 nectarina'],
+  ],
+  5: [ // Viernes
+    ['100g avena con 250ml leche entera calentado en microondas', '1 cucharada de miel encima', '3 huevos revueltos con aceite de oliva', '1 plátano'],
+    ['50g almendras', '1 yogur griego con miel', '1 nectarina'],
+    ['150g arroz blanco con aceite de oliva', '200g muslos de pollo al horno', 'Ensalada con tomate, pepino y aceite'],
+    ['Batido: 250ml leche entera + plátano + 50g avena + cacao + mantequilla + miel', '1 tostada con mantequilla y miel'],
+    ['150g patatas al horno con aceite', '3 huevos fritos', '2 rebanadas de pan con mantequilla y salmón ahumado', '1 melocotón'],
+  ],
+  6: [ // Sábado
+    ['100g avena con 250ml leche entera calentado en microondas', '1 cucharada de miel encima', '3 huevos revueltos con aceite de oliva', '1 plátano'],
+    ['50g almendras', '1 yogur griego con miel', '1 melocotón'],
+    ['150g pasta con tomate natural, aceite y queso rallado', '200g pechuga de pollo a la plancha', 'Pan con aceite de oliva'],
+    ['Batido: 250ml leche entera + plátano + 50g avena + cacao + mantequilla + miel', '1 tostada con mantequilla y miel'],
+    ['150g arroz con atún y aceite', '2 huevos fritos', '2 rebanadas de pan con mantequilla y salmón ahumado', '1 nectarina'],
+  ],
+  0: [ // Domingo
+    ['100g avena con 250ml leche entera calentado en microondas', '1 cucharada de miel encima', '3 huevos revueltos con aceite de oliva', '1 plátano'],
+    ['50g almendras', '1 yogur griego con miel', '1 nectarina'],
+    ['150g patatas al horno con aceite de oliva', '200g muslos de pollo al horno con limón y especias', 'Ensalada completa con tomate, pepino y aceite'],
+    ['Batido: 250ml leche entera + plátano + 50g avena + cacao + mantequilla + miel', '1 tostada con mantequilla y miel'],
+    ['150g pasta con aceite, atún y huevo duro', '2 rebanadas de pan con mantequilla y salmón ahumado', '1 melocotón'],
+  ],
+};
+
+// ── GAPS between meals (minutes) ──────────────────────────────────────────
+const MEAL_GAPS = [0, 150, 150, 180, 240]; // gap before each meal index
+
+function getNextMealTime(afterMealIdx) {
+  // Returns suggested Date for next meal based on when current was eaten
+  const now = doneMeals[afterMealIdx] ? new Date(doneMeals[afterMealIdx]) : new Date();
+  const nextIdx = afterMealIdx + 1;
+  if (nextIdx >= MEALS.length) return null;
+  const gap = MEAL_GAPS[nextIdx];
+  return new Date(now.getTime() + gap * 60000);
+}
+
+function formatTime(date) {
+  if (!date) return '';
+  return `${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
+}
+
+function getCurrentBlockIndex(h) {
+  const hAdj = h < 9 ? h + 24 : h;
+  for (let i = 0; i < SCHEDULE.length; i++) {
+    if (hAdj >= SCHEDULE[i].startH && hAdj < SCHEDULE[i].endH) return i;
+  }
+  if (hAdj < SCHEDULE[0].startH) return 0;
+  return SCHEDULE.length - 1;
+}
+
+// Returns which meal index should be "current" considering what's been marked done
+function getActiveMealIdx() {
+  // Find first meal not yet done
+  for (let i = 0; i < MEALS.length; i++) {
+    if (!doneMeals[i]) return i;
+  }
+  return MEALS.length - 1; // all done
+}
+
+function markDone(mealIdx) {
+  if (doneMeals[mealIdx]) return; // already done
+  doneMeals[mealIdx] = Date.now();
+  saveState();
+
+  // Schedule notification for next meal
+  const nextIdx = mealIdx + 1;
+  if (nextIdx < MEALS.length) {
+    const nextTime = getNextMealTime(mealIdx);
+    const msUntil = nextTime - Date.now();
+    const nextName = MEALS[nextIdx].name;
+
+    // Toast immediately showing next meal time
+    showToast(`✅ ¡Hecho! Próxima comida: ${nextName} a las ${formatTime(nextTime)}`);
+
+    // Browser notification if permitted
+    if (msUntil > 0 && 'Notification' in window && Notification.permission === 'granted') {
+      setTimeout(() => {
+        new Notification('🍽️ Hora de comer', {
+          body: `Toca: ${nextName}`,
+          icon: ''
+        });
+      }, msUntil);
+    }
+  } else {
+    showToast('🎉 ¡Todas las comidas del día completadas!');
+  }
+
+  updateClock();
+}
+
+// ── TOAST ──────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast';
+    t.style.cssText = `position:fixed;bottom:90px;left:50%;transform:translateX(-50%);
+      background:#1e3a2a;border:1px solid #2d5a3a;color:#f1f5f9;
+      padding:12px 20px;border-radius:12px;font-size:13px;font-weight:600;
+      z-index:999;max-width:90vw;text-align:center;transition:opacity 0.3s;`;
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._hide);
+  t._hide = setTimeout(() => t.style.opacity = '0', 3500);
+}
+
+// ── ASK NOTIFICATION PERMISSION ────────────────────────────────────────────
+function askNotifPermission() {
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+}
+
+// ── CLOCK + RENDER ─────────────────────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  const h = now.getHours(), m = now.getMinutes();
+  document.getElementById('clock').textContent =
+    `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+
+  const dayIdx  = now.getDay();
+  const activeMealIdx = getActiveMealIdx();
+  const allDone = Object.keys(doneMeals).length >= MEALS.length;
+
+  // ── HERO ──
+  const heroCard  = document.getElementById('heroCard');
+  const heroLabel = document.getElementById('heroLabel');
+  const heroTitle = document.getElementById('heroTitle');
+  const heroKcal  = document.getElementById('heroKcal');
+  const heroItems = document.getElementById('heroItems');
+
+  // Check if it's gym time and no meals done yet
+  const blockIdx = getCurrentBlockIndex(h);
+  const block = SCHEDULE[blockIdx];
+  const gymActive = block.type === 'gym' && !doneMeals[0];
+
+  if (allDone) {
+    heroCard.style.background = 'linear-gradient(135deg, #1a1d27, #222636)';
+    heroCard.style.borderColor = '#4ade80';
+    heroLabel.style.color = 'var(--accent)';
+    heroLabel.textContent = '¡Todo completado!';
+    heroTitle.textContent = '🎉 ¡Gran día!';
+    heroKcal.style.color = 'var(--accent)';
+    heroKcal.textContent = '~3.400 kcal ingeridas';
+    heroItems.innerHTML = `<div class="meal-item"><div class="meal-item-dot"></div><div class="meal-item-text">Has completado todas las comidas del día. ¡A descansar y crecer!</div></div>`;
+  } else if (gymActive) {
+    heroCard.style.background = 'linear-gradient(135deg, #0f1a35, #1a2a50)';
+    heroCard.style.borderColor = '#2d3f6e';
+    heroLabel.style.color = 'var(--gym-accent)';
+    heroLabel.textContent = 'Ahora toca';
+    heroTitle.textContent = '🏋️ Gym';
+    heroKcal.style.color = 'var(--gym-accent)';
+    heroKcal.textContent = '10:00 - 12:00 · Pesas';
+    heroItems.innerHTML = `
+      <div class="meal-item" style="background:rgba(96,165,250,0.07)">
+        <div class="meal-item-dot" style="background:var(--gym-accent)"></div>
+        <div class="meal-item-text">Entrena con el desayuno ya hecho</div>
+      </div>
+      <div class="meal-item" style="background:rgba(96,165,250,0.07)">
+        <div class="meal-item-dot" style="background:var(--gym-accent)"></div>
+        <div class="meal-item-text">Al acabar, come el post-gym en menos de 30 min</div>
+      </div>`;
+  } else {
+    const meal = MEALS[activeMealIdx];
+    const items = DIET[dayIdx][meal.idx];
+
+    // Calculate suggested time
+    let suggestedTime = '';
+    if (activeMealIdx === 0) {
+      suggestedTime = '9:00 - 10:00';
+    } else if (doneMeals[activeMealIdx - 1]) {
+      const t = getNextMealTime(activeMealIdx - 1);
+      suggestedTime = `~${formatTime(t)}`;
+    } else {
+      suggestedTime = meal.time;
+    }
+
+    heroCard.style.background = 'linear-gradient(135deg, #1a2e1e, #1e3a2a)';
+    heroCard.style.borderColor = '#2d5a3a';
+    heroLabel.style.color = 'var(--accent)';
+    heroLabel.textContent = 'Ahora toca';
+    heroTitle.textContent = meal.name;
+    heroKcal.style.color = 'var(--accent)';
+    heroKcal.textContent = `${meal.kcal} · ${suggestedTime}`;
+    heroItems.innerHTML = items.map(it => `
+      <div class="meal-item">
+        <div class="meal-item-dot"></div>
+        <div class="meal-item-text">${it}</div>
+      </div>
+    `).join('');
+  }
+
+  // ── PROGRESS ──
+  const mealsDone = Object.keys(doneMeals).length;
+  const pct = Math.round((mealsDone / MEALS.length) * 100);
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `${mealsDone} / ${MEALS.length}`;
+
+  // ── TODAY LIST ──
+  const todayMeals = document.getElementById('todayMeals');
+  todayMeals.innerHTML = SCHEDULE.map((s, i) => {
+    const isCurrent = s.type === 'meal' && s.idx === activeMealIdx && !allDone;
+    const isDone = s.type === 'meal' && doneMeals[s.idx];
+
+    if (s.type === 'gym') {
+      const gymDone = doneMeals[0]; // if breakfast done, gym was after
+      return `
+        <div class="meal-card gym-block ${gymActive ? 'current' : ''}">
+          <div class="meal-card-header" style="cursor:default">
+            <div class="meal-card-left">
+              <div class="meal-icon">${gymDone ? '✅' : '🏋️'}</div>
+              <div>
+                <div class="meal-name" style="color:var(--gym-accent)">Gym</div>
+                <div class="meal-time">${s.time}</div>
+              </div>
+            </div>
+            <div class="meal-right">
+              <span class="meal-kcal-badge" style="color:var(--gym-accent);background:rgba(96,165,250,0.12)">~1.5h</span>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    const dayItems = DIET[dayIdx][s.idx];
+
+    // Compute suggested time for this meal
+    let displayTime = s.time;
+    if (s.idx === 0) {
+      displayTime = doneMeals[0] ? `✓ ${formatTime(new Date(doneMeals[0]))}` : s.time;
+    } else if (doneMeals[s.idx]) {
+      displayTime = `✓ ${formatTime(new Date(doneMeals[s.idx]))}`;
+    } else if (doneMeals[s.idx - 1]) {
+      const t = getNextMealTime(s.idx - 1);
+      displayTime = `~${formatTime(t)}`;
+    }
+
+    return `
+      <div class="meal-card ${isCurrent ? 'current open' : ''} ${isDone ? 'done' : ''}">
+        <div class="meal-card-header" onclick="toggleCard(this)">
+          <div class="meal-card-left">
+            <div class="meal-icon">${isDone ? '✅' : s.icon}</div>
+            <div>
+              <div class="meal-name" style="${isDone ? 'color:var(--muted);text-decoration:line-through' : ''}">${s.name}</div>
+              <div class="meal-time" style="${isDone ? 'color:var(--accent)' : ''}">${displayTime}</div>
+            </div>
+          </div>
+          <div class="meal-right">
+            ${isCurrent && !isDone ? `
+              <button onclick="event.stopPropagation();markDone(${s.idx})" style="
+                padding:8px 14px;border-radius:99px;border:none;
+                background:var(--accent);color:#0f1117;font-size:13px;font-weight:700;
+                cursor:pointer;white-space:nowrap;">
+                ✓ Hecho
+              </button>` : `<span class="meal-kcal-badge">${s.kcal}</span>`}
+            <span class="meal-chevron">▼</span>
+          </div>
+        </div>
+        <div class="meal-card-body">
+          ${dayItems.map(it => `<div class="meal-card-item">${it}</div>`).join('')}
+          ${isDone ? `<div style="text-align:center;padding:8px;font-size:13px;color:var(--accent);font-weight:600;">✅ Completado a las ${formatTime(new Date(doneMeals[s.idx]))}</div>` : ''}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderWeek(selectedDay) {
+  const scroll = document.getElementById('dayScroll');
+  scroll.innerHTML = DAYS.map((d, i) => `
+    <button class="day-btn ${i === selectedDay ? 'active' : ''}" onclick="renderWeek(${i})">${SHORT_DAYS[i]}</button>
+  `).join('');
+
+  const weekMeals = document.getElementById('weekMeals');
+  weekMeals.innerHTML = SCHEDULE.map((s, i) => {
+    if (s.type === 'gym') {
+      return `
+        <div class="meal-card gym-block">
+          <div class="meal-card-header" style="cursor:default">
+            <div class="meal-card-left">
+              <div class="meal-icon">🏋️</div>
+              <div>
+                <div class="meal-name">Gym</div>
+                <div class="meal-time">${s.time}</div>
+              </div>
+            </div>
+            <div class="meal-right">
+              <span class="meal-kcal-badge">~1.5h</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+    const dayItems = DIET[selectedDay][s.idx];
+    return `
+      <div class="meal-card">
+        <div class="meal-card-header" onclick="toggleCard(this)">
+          <div class="meal-card-left">
+            <div class="meal-icon">${s.icon}</div>
+            <div>
+              <div class="meal-name">${s.name}</div>
+              <div class="meal-time">${s.time}</div>
+            </div>
+          </div>
+          <div class="meal-right">
+            <span class="meal-kcal-badge">${s.kcal}</span>
+            <span class="meal-chevron">▼</span>
+          </div>
+        </div>
+        <div class="meal-card-body">
+          ${dayItems.map(it => `<div class="meal-card-item">${it}</div>`).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleCard(header) {
+  const card = header.closest('.meal-card');
+  card.classList.toggle('open');
+}
+
+function setView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  document.getElementById('nav-' + name).classList.add('active');
+}
+
+// Init
+loadState();
+askNotifPermission();
+updateClock();
+setInterval(updateClock, 30000);
+renderWeek(new Date().getDay());
+</script>
+</body>
+</html>
